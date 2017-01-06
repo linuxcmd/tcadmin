@@ -33,8 +33,12 @@ wget http://www.tcadmin.com/installer/tcadmin-2-bi.noarch.rpm;yum -y install tca
 install_mysql () {
 yum install mysql-server mysql -y
 /etc/init.d/mysqld start
-mysqladmin -u root password '$db_pass'
-mysql -u root -p$db_pass << EOF
+mysqladmin -u root password "$db_pass"
+echo "[mysql]" > /root/.my.cnf
+echo "user=root" >> /root/.my.cnf
+echo "password=$db_pass" >> /root/.my.cnf
+
+mysql << EOF
     DELETE FROM mysql.user WHERE User='';
     DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
     DROP DATABASE test;
@@ -60,15 +64,26 @@ echo "USE THIS DETAILS TO CONVERT SQLITE TO MYSQL"
 echo "==========================================="
 }
 
+install_remote () {
+install_dependencies
+install_tcadmin
+}
+
+install_master () {
+install_dependencies
+install_tcadmin
+install_mysql
+tcadmindb_setup
+}
+
 if [[ $1 = "master" ]]; then
-        echo "install_dependencies"
-        echo "install_tcadmin"
-        echo "install_mysql"
-        echo "tcadmindb_setup"
+        clear
+        install_master 2>&1 | tee /var/log/tcadmin_master_install.log
 elif [[ $1 = "remote" ]]; then
-        echo "install_dependencies"
-        echo "install_tcadmin"
+        clear
+        install_remote 2>&1 | tee /var/log/tcadmin_remote_install.log
 else
+        clear
         echo "Command usage : $0 remote/master"
         echo "To setup tcadmin master server type \"$0 master\" and vice versa"
 fi
