@@ -50,7 +50,7 @@ mysql -u root -p$db_pass << EOF
    flush privileges;
 EOF
 echo "Installation completed, please see http://help.tcadmin.com/Installation for more info"
-echo "Try accessing TCADMIN using IPADDRESS:8880"
+echo "Try accessing TCADMIN using IPADDRESS:8880 on any web browser"
 echo "=========TCAdmin database details==========="
 echo "Host=> $tchost"
 echo "Database name=> $tcdatabase"
