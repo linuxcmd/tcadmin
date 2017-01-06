@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Script to install tcadmin.
-
+#Use this script only on a FRESH/NEW SERVER
 
 #===================variables========================#
 db_pass=`cat /dev/urandom| tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1`
@@ -14,12 +14,15 @@ tcdatabase=tcadmindb
 install_dependencies () {
 wget http://www.tcadmin.com/installer/mono-2.11.4-x86_64.rpm
 yum -y install mono-2.11.4-x86_64.rpm --nogpgcheck
+sleep 2
 /opt/mono-2.11.4/bin/mozroots --import --sync --quiet
 /opt/mono-2.11.4/bin/mono --aot -O=all /opt/mono-2.11.4/lib/mono/2.0/mscorlib.dll
 for i in /opt/mono-2.11.4/lib/mono/gac/*/*/*.dll; do /opt/mono-2.11.4/bin/mono --aot -O=all $i; done
 yum install glibc.i686 libstdc++.i686 -y
+sleep 2
 wget http://www.tcadmin.com/installer/msttcorefonts-2.0-1.noarch.rpm
 yum -y install msttcorefonts-2.0-1.noarch.rpm --nogpgcheck
+sleep 2
 yum -y install libpcap schedutils lsof glibc.i686 libstdc++.i686
 }
 
@@ -27,6 +30,7 @@ yum -y install libpcap schedutils lsof glibc.i686 libstdc++.i686
 install_tcadmin () {
 cd /usr/local/src
 wget http://www.tcadmin.com/installer/tcadmin-2-bi.noarch.rpm;yum -y install tcadmin-2-bi.noarch.rpm --nogpgcheck
+sleep 2
 }
 
 
@@ -37,7 +41,7 @@ mysqladmin -u root password "$db_pass"
 echo "[mysql]" > /root/.my.cnf
 echo "user=root" >> /root/.my.cnf
 echo "password=$db_pass" >> /root/.my.cnf
-
+echo "Configuring MySQL Now."
 mysql << EOF
     DELETE FROM mysql.user WHERE User='';
     DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
@@ -45,14 +49,18 @@ mysql << EOF
     DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
     flush privileges;
 EOF
+echo "Completed!!"
 }
 
 tcadmindb_setup () {
-mysql -u root -p$db_pass << EOF
+echo "creating database for tcadmin"
+mysql << EOF
    create database $tcdatabase;
-   grant all privileges on $tcdatabase to '$tcuser'@'$tchost' identified by '$tcdbpass';
+   grant all privileges on $tcdatabase.* to '$tcuser'@'$tchost' identified by '$tcdbpass';
    flush privileges;
 EOF
+echo "Completed!!"
+sleep 2
 echo "Installation completed, please see http://help.tcadmin.com/Installation for more info"
 echo "Try accessing TCADMIN using IPADDRESS:8880 on any web browser"
 echo "=========TCAdmin database details==========="
