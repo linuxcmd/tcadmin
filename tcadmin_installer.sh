@@ -14,15 +14,12 @@ tcdatabase=tcadmindb
 install_dependencies () {
 wget http://www.tcadmin.com/installer/mono-2.11.4-x86_64.rpm
 yum -y install mono-2.11.4-x86_64.rpm --nogpgcheck
-sleep 2
 /opt/mono-2.11.4/bin/mozroots --import --sync --quiet
 /opt/mono-2.11.4/bin/mono --aot -O=all /opt/mono-2.11.4/lib/mono/2.0/mscorlib.dll
 for i in /opt/mono-2.11.4/lib/mono/gac/*/*/*.dll; do /opt/mono-2.11.4/bin/mono --aot -O=all $i; done
 yum install glibc.i686 libstdc++.i686 -y
-sleep 2
 wget http://www.tcadmin.com/installer/msttcorefonts-2.0-1.noarch.rpm
 yum -y install msttcorefonts-2.0-1.noarch.rpm --nogpgcheck
-sleep 2
 yum -y install libpcap schedutils lsof glibc.i686 libstdc++.i686
 }
 
@@ -30,7 +27,6 @@ yum -y install libpcap schedutils lsof glibc.i686 libstdc++.i686
 install_tcadmin () {
 cd /usr/local/src
 wget http://www.tcadmin.com/installer/tcadmin-2-bi.noarch.rpm;yum -y install tcadmin-2-bi.noarch.rpm --nogpgcheck
-sleep 2
 }
 
 
